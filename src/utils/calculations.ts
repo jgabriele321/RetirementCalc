@@ -11,6 +11,7 @@ export interface RetirementAssumptions {
   withdrawalRate: number
   inflationRate: number
   expectedReturn: number // Annual expected return (e.g., 0.07 for 7%)
+  currentSavings: number // Current retirement savings amount
 }
 
 export interface RetirementScenario {
@@ -129,13 +130,15 @@ export function calculateRetirementScenario(
   const currentSavingsNeeded = calculateMonthlySavingsNeeded(
     currentNestEgg,
     scenario.retirementYears,
-    scenario.assumptions.expectedReturn
+    scenario.assumptions.expectedReturn,
+    scenario.assumptions.currentSavings
   )
 
   const targetSavingsNeeded = calculateMonthlySavingsNeeded(
     targetNestEgg,
     scenario.retirementYears,
-    scenario.assumptions.expectedReturn
+    scenario.assumptions.expectedReturn,
+    scenario.assumptions.currentSavings
   )
 
   // Calculate differences

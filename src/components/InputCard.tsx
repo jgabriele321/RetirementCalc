@@ -29,7 +29,8 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
   const [assumptions, setAssumptions] = useState<RetirementAssumptions>({
     withdrawalRate: 0.04,
     inflationRate: 0.025,
-    expectedReturn: 0.07
+    expectedReturn: 0.07,
+    currentSavings: 0
   })
 
   // Update parent component when data changes

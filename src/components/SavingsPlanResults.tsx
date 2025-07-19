@@ -28,7 +28,7 @@ export function SavingsPlanResults({
           Required Monthly Savings
         </h3>
         <p className="text-sm text-dark/70 mb-4">
-          How much you need to save each month to reach your retirement goal, based on your expected investment return.
+          How much you need to save each month to reach your retirement goal, accounting for your current savings and expected investment return.
         </p>
       </div>
 
