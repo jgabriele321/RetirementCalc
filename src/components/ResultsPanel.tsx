@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useCostOfLiving } from '../hooks/useCostOfLiving'
 import { calculateRetirementScenario, formatCurrency, formatPercentage } from '../utils/calculations'
+import { SavingsPlanResults } from './SavingsPlanResults'
 import type { SpendingBuckets, RetirementAssumptions } from '../utils/calculations'
 
 interface ResultsPanelProps {
@@ -254,10 +255,21 @@ export function ResultsPanel({
         </div>
       </div>
 
+      {/* Savings Plan Results */}
+      <div className="border-t border-gray-200 pt-6">
+        <SavingsPlanResults
+          currentLocationSavings={currentLocation.savingsNeeded}
+          targetLocationSavings={targetLocation.savingsNeeded}
+          monthlyDifference={comparison.savingsDifference.monthlyDifference}
+          annualDifference={comparison.savingsDifference.annualDifference}
+        />
+      </div>
+
       {/* Methodology note */}
       <div className="text-xs text-dark/50 bg-gray-50 p-3 rounded">
         <strong>Methodology:</strong> Calculations use Regional Price Parities (BEA) data, 
-        {assumptions.withdrawalRate * 100}% withdrawal rate, and {assumptions.inflationRate * 100}% annual inflation. 
+        {assumptions.withdrawalRate * 100}% withdrawal rate, {assumptions.inflationRate * 100}% annual inflation,
+        and {assumptions.expectedReturn * 100}% expected investment return. 
         Results are estimates for planning purposes only.
       </div>
     </div>

@@ -48,7 +48,8 @@ export function DataTest() {
         },
         assumptions: {
           withdrawalRate: 0.04,
-          inflationRate: 0.025
+          inflationRate: 0.025,
+          expectedReturn: 0.07
         }
       },
       nyResult.data,

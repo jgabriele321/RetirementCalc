@@ -10,6 +10,7 @@ export interface SpendingBuckets {
 export interface RetirementAssumptions {
   withdrawalRate: number
   inflationRate: number
+  expectedReturn: number // Annual expected return (e.g., 0.07 for 7%)
 }
 
 export interface RetirementScenario {
@@ -20,6 +21,14 @@ export interface RetirementScenario {
   assumptions: RetirementAssumptions
 }
 
+export interface SavingsCalculation {
+  requiredNestEgg: number
+  monthlySavingsNeeded: number
+  annualSavingsNeeded: number
+  totalContributions: number
+  investmentGrowth: number
+}
+
 export interface RetirementCalculationResult {
   currentLocation: {
     name: string
@@ -27,6 +36,7 @@ export interface RetirementCalculationResult {
     inflatedAnnualSpending: number
     requiredNestEgg: number
     rppData: CostOfLivingData
+    savingsNeeded: SavingsCalculation
   }
   targetLocation: {
     name: string
@@ -35,12 +45,55 @@ export interface RetirementCalculationResult {
     requiredNestEgg: number
     rppData: CostOfLivingData
     costOfLivingRatio: number
+    savingsNeeded: SavingsCalculation
   }
   comparison: {
     annualDifference: number
     nestEggDifference: number
     percentageDifference: number
     isCheaper: boolean
+    savingsDifference: {
+      monthlyDifference: number
+      annualDifference: number
+    }
+  }
+}
+
+export function calculateMonthlySavingsNeeded(
+  targetAmount: number,
+  years: number,
+  annualReturn: number,
+  currentSavings: number = 0
+): SavingsCalculation {
+  const monthlyReturn = annualReturn / 12
+  const totalMonths = years * 12
+  
+  // Future value of current savings
+  const futureValueCurrentSavings = currentSavings * Math.pow(1 + annualReturn, years)
+  
+  // Amount still needed after growth of current savings
+  const stillNeeded = Math.max(0, targetAmount - futureValueCurrentSavings)
+  
+  // Monthly payment needed using future value of annuity formula
+  // PMT = FV * r / ((1 + r)^n - 1)
+  let monthlySavings = 0
+  if (stillNeeded > 0 && monthlyReturn > 0) {
+    monthlySavings = stillNeeded * monthlyReturn / (Math.pow(1 + monthlyReturn, totalMonths) - 1)
+  } else if (stillNeeded > 0 && monthlyReturn === 0) {
+    // If no return, just divide by number of months
+    monthlySavings = stillNeeded / totalMonths
+  }
+  
+  const annualSavings = monthlySavings * 12
+  const totalContributions = annualSavings * years + currentSavings
+  const investmentGrowth = targetAmount - totalContributions
+  
+  return {
+    requiredNestEgg: targetAmount,
+    monthlySavingsNeeded: monthlySavings,
+    annualSavingsNeeded: annualSavings,
+    totalContributions,
+    investmentGrowth: Math.max(0, investmentGrowth)
   }
 }
 
@@ -72,10 +125,26 @@ export function calculateRetirementScenario(
   const currentNestEgg = currentInflatedSpending / scenario.assumptions.withdrawalRate
   const targetNestEgg = targetInflatedSpending / scenario.assumptions.withdrawalRate
 
+  // Calculate savings needed for each scenario
+  const currentSavingsNeeded = calculateMonthlySavingsNeeded(
+    currentNestEgg,
+    scenario.retirementYears,
+    scenario.assumptions.expectedReturn
+  )
+
+  const targetSavingsNeeded = calculateMonthlySavingsNeeded(
+    targetNestEgg,
+    scenario.retirementYears,
+    scenario.assumptions.expectedReturn
+  )
+
   // Calculate differences
   const annualDifference = targetInflatedSpending - currentInflatedSpending
   const nestEggDifference = targetNestEgg - currentNestEgg
   const percentageDifference = ((targetNestEgg - currentNestEgg) / currentNestEgg) * 100
+
+  const monthlyDifference = targetSavingsNeeded.monthlySavingsNeeded - currentSavingsNeeded.monthlySavingsNeeded
+  const annualSavingsDifference = targetSavingsNeeded.annualSavingsNeeded - currentSavingsNeeded.annualSavingsNeeded
 
   return {
     currentLocation: {
@@ -83,7 +152,8 @@ export function calculateRetirementScenario(
       annualSpending: currentAnnualSpending,
       inflatedAnnualSpending: currentInflatedSpending,
       requiredNestEgg: currentNestEgg,
-      rppData: currentLocationData
+      rppData: currentLocationData,
+      savingsNeeded: currentSavingsNeeded
     },
     targetLocation: {
       name: `Target Location (${scenario.targetZip})`,
@@ -91,13 +161,18 @@ export function calculateRetirementScenario(
       inflatedAnnualSpending: targetInflatedSpending,
       requiredNestEgg: targetNestEgg,
       rppData: targetLocationData,
-      costOfLivingRatio
+      costOfLivingRatio,
+      savingsNeeded: targetSavingsNeeded
     },
     comparison: {
       annualDifference,
       nestEggDifference,
       percentageDifference,
-      isCheaper: targetNestEgg < currentNestEgg
+      isCheaper: targetNestEgg < currentNestEgg,
+      savingsDifference: {
+        monthlyDifference,
+        annualDifference: annualSavingsDifference
+      }
     }
   }
 }

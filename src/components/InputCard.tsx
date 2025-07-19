@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { ZipAutocomplete } from './ZipAutocomplete'
 import { SpendingBuckets } from './SpendingBuckets'
 import { RetirementSlider } from './RetirementSlider'
-import type { SpendingBuckets as SpendingBucketsType } from '../utils/calculations'
+import { AssumptionsInput } from './AssumptionsInput'
+import type { SpendingBuckets as SpendingBucketsType, RetirementAssumptions } from '../utils/calculations'
 
 interface InputCardProps {
   onDataChange: (data: {
@@ -10,6 +11,7 @@ interface InputCardProps {
     targetZip: string
     retirementYears: number
     monthlySpending: SpendingBucketsType
+    assumptions: RetirementAssumptions
   }) => void
   className?: string
 }
@@ -24,6 +26,11 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
     health: 400,
     other: 800
   })
+  const [assumptions, setAssumptions] = useState<RetirementAssumptions>({
+    withdrawalRate: 0.04,
+    inflationRate: 0.025,
+    expectedReturn: 0.07
+  })
 
   // Update parent component when data changes
   const updateParent = (updates: Partial<{
@@ -31,12 +38,14 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
     targetZip: string
     retirementYears: number
     monthlySpending: SpendingBucketsType
+    assumptions: RetirementAssumptions
   }>) => {
     const newData = {
       currentZip: updates.currentZip ?? currentZip,
       targetZip: updates.targetZip ?? targetZip,
       retirementYears: updates.retirementYears ?? retirementYears,
-      monthlySpending: updates.monthlySpending ?? monthlySpending
+      monthlySpending: updates.monthlySpending ?? monthlySpending,
+      assumptions: updates.assumptions ?? assumptions
     }
 
     onDataChange(newData)
@@ -60,6 +69,11 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
   const handleSpendingChange = (spending: SpendingBucketsType) => {
     setMonthlySpending(spending)
     updateParent({ monthlySpending: spending })
+  }
+
+  const handleAssumptionsChange = (newAssumptions: RetirementAssumptions) => {
+    setAssumptions(newAssumptions)
+    updateParent({ assumptions: newAssumptions })
   }
 
   return (
@@ -105,6 +119,14 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
         <SpendingBuckets
           values={monthlySpending}
           onChange={handleSpendingChange}
+        />
+      </div>
+
+      {/* Financial Assumptions */}
+      <div className="border-t border-gray-200 pt-8">
+        <AssumptionsInput
+          assumptions={assumptions}
+          onChange={handleAssumptionsChange}
         />
       </div>
 
