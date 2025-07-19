@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useCostOfLiving } from '../hooks/useCostOfLiving'
 import { calculateRetirementScenario, formatCurrency, formatPercentage } from '../utils/calculations'
 import { SavingsPlanResults } from './SavingsPlanResults'
+import { DataDebugger } from './DataDebugger'
 import type { SpendingBuckets, RetirementAssumptions } from '../utils/calculations'
 
 interface ResultsPanelProps {
@@ -32,7 +33,7 @@ export function ResultsPanel({
 
     if (!currentResult.data || !targetResult.data) return null
 
-    return calculateRetirementScenario(
+    const result = calculateRetirementScenario(
       {
         currentZip,
         targetZip,
@@ -43,6 +44,16 @@ export function ResultsPanel({
       currentResult.data,
       targetResult.data
     )
+
+    // Add data quality metadata
+    return {
+      ...result,
+      dataQuality: {
+        currentIsFallback: currentResult.isFallback,
+        targetIsFallback: targetResult.isFallback,
+        hasDataQualityIssues: currentResult.isFallback || targetResult.isFallback
+      }
+    }
   }, [currentZip, targetZip, retirementYears, monthlySpending, assumptions, lookupZip])
 
   if (isLoading) {
@@ -77,13 +88,18 @@ export function ResultsPanel({
     )
   }
 
-  const { currentLocation, targetLocation, comparison } = calculationResult
+  const { currentLocation, targetLocation, comparison, dataQuality } = calculationResult
 
   return (
     <div className={`card space-y-6 ${className}`}>
       <h3 className="text-2xl font-semibold text-dark mb-6">
         Retirement Comparison
       </h3>
+
+      {/* Data Quality Warning */}
+      {dataQuality?.hasDataQualityIssues && (
+        <DataDebugger zipCode1={currentZip} zipCode2={targetZip} />
+      )}
 
       {/* Location Comparison Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

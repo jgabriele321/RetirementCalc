@@ -15,5 +15,5 @@ export interface ZipCodeLookupResult {
   data: CostOfLivingData | null
   isFound: boolean
   isFallback: boolean
-  fallbackType?: 'state' | 'cbsa'
+  fallbackType?: 'state' | 'cbsa' | 'estimate'
 }
