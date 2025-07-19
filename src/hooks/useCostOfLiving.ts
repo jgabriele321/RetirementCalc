@@ -198,7 +198,7 @@ export function useCostOfLiving(): UseCostOfLivingReturn {
     // In a real application, you'd want a more comprehensive mapping
     const zipToState: { [key: string]: string } = {
       '0': 'MA', '1': 'MA', '2': 'MA', '3': 'NH', '4': 'ME', '5': 'VT',
-      '6': 'CT', '7': 'NJ', '8': 'NJ', '9': 'NJ',
+      '6': 'CT', '07': 'NJ', '7': 'NJ', '8': 'NJ', '9': 'NJ',
       '10': 'NY', '11': 'NY', '12': 'NY', '13': 'NY', '14': 'NY',
       '15': 'PA', '16': 'PA', '17': 'PA', '18': 'PA', '19': 'PA',
       '20': 'DC', '21': 'MD', '22': 'VA', '23': 'VA', '24': 'VA',

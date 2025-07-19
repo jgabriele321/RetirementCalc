@@ -51,8 +51,10 @@ export function DataDebugger({ zipCode1, zipCode2 }: DataDebuggerProps) {
                   <div className="text-orange-600 text-xs mt-2 p-2 bg-orange-50 rounded">
                     <strong>⚠️ Using fallback data!</strong><br />
                     This ZIP code isn't in our database. 
-                    {result1.fallbackType === 'state' ? 
-                      ` Using average for ${result1.data.state} state.` : 
+                    {result1.fallbackType === 'estimate' ? 
+                      ` Using state estimate for ${result1.data.state} (RPP: ${result1.data.rpp_all}).` : 
+                      result1.fallbackType === 'state' ?
+                      ` Using average for ${result1.data.state} state.` :
                       ' Using national average (100.0).'
                     }
                   </div>
@@ -93,8 +95,10 @@ export function DataDebugger({ zipCode1, zipCode2 }: DataDebuggerProps) {
                   <div className="text-orange-600 text-xs mt-2 p-2 bg-orange-50 rounded">
                     <strong>⚠️ Using fallback data!</strong><br />
                     This ZIP code isn't in our database. 
-                    {result2.fallbackType === 'state' ? 
-                      ` Using average for ${result2.data.state} state.` : 
+                    {result2.fallbackType === 'estimate' ? 
+                      ` Using state estimate for ${result2.data.state} (RPP: ${result2.data.rpp_all}).` : 
+                      result2.fallbackType === 'state' ?
+                      ` Using average for ${result2.data.state} state.` :
                       ' Using national average (100.0).'
                     }
                   </div>
@@ -146,13 +150,13 @@ export function DataDebugger({ zipCode1, zipCode2 }: DataDebuggerProps) {
               <strong className="text-red-800">Known Data Issues:</strong>
               <ul className="text-red-700 mt-1 space-y-1 list-disc list-inside">
                 {result1.isFallback && result1.data.state && getStateData(result1.data.state).length === 0 && (
-                  <li>No {result1.data.state} ZIP codes in database - using national average (100.0)</li>
+                  <li>No {result1.data.state} ZIP codes in core dataset - using state estimate (RPP: {result1.data.rpp_all})</li>
                 )}
                 {result2.isFallback && result2.data.state && getStateData(result2.data.state).length === 0 && (
-                  <li>No {result2.data.state} ZIP codes in database - using national average (100.0)</li>
+                  <li>No {result2.data.state} ZIP codes in core dataset - using state estimate (RPP: {result2.data.rpp_all})</li>
                 )}
                 {(result1.isFallback || result2.isFallback) && (
-                  <li>Sample dataset only contains 80 ZIP codes - results may not reflect reality</li>
+                  <li>Using fallback estimates - results based on state-level cost-of-living data</li>
                 )}
               </ul>
             </div>
