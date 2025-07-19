@@ -24,8 +24,8 @@ export function useCostOfLiving(): UseCostOfLivingReturn {
         setIsLoading(true)
         setError(null)
 
-        // Fetch from public directory
-        const response = await fetch('/col_by_zip.json')
+        // Fetch optimized core dataset
+        const response = await fetch('/col_by_zip_core.json')
         
         if (!response.ok) {
           throw new Error(`Failed to load cost of living data: ${response.status}`)
@@ -35,7 +35,7 @@ export function useCostOfLiving(): UseCostOfLivingReturn {
         
         if (isMounted) {
           setData(costOfLivingData)
-          console.log(`✅ Loaded cost of living data for ${Object.keys(costOfLivingData).length} ZIP codes`)
+          console.log(`✅ Loaded core dataset with ${Object.keys(costOfLivingData).length} ZIP codes`)
         }
       } catch (err) {
         if (isMounted) {
