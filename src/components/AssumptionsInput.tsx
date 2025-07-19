@@ -3,10 +3,11 @@ import type { RetirementAssumptions } from '../utils/calculations'
 interface AssumptionsInputProps {
   assumptions: RetirementAssumptions
   onChange: (assumptions: RetirementAssumptions) => void
+  retirementYears?: number
   className?: string
 }
 
-export function AssumptionsInput({ assumptions, onChange, className = "" }: AssumptionsInputProps) {
+export function AssumptionsInput({ assumptions, onChange, retirementYears = 15, className = "" }: AssumptionsInputProps) {
   
   const handleChange = (field: keyof RetirementAssumptions, value: number) => {
     // Round to 2 decimal places for percentage fields
@@ -20,10 +21,74 @@ export function AssumptionsInput({ assumptions, onChange, className = "" }: Assu
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-6 ${className}`}>
+      {/* Current Savings - Prominent Section */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-dark mb-3">Current Retirement Savings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-dark/70 mb-2">
+              Already Saved for Retirement
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-dark/40 text-lg">$</span>
+              </div>
+              <input
+                type="number"
+                value={assumptions.currentSavings}
+                onChange={(e) => handleChange('currentSavings', parseFloat(e.target.value) || 0)}
+                className="input-field pl-8 text-lg font-medium"
+                step="5000"
+                min="0"
+                max="10000000"
+                placeholder="0"
+              />
+            </div>
+            <div className="text-xs text-dark/60 mt-1">
+              Include 401(k), IRA, savings, investments, etc.
+            </div>
+            
+            {/* Quick amount buttons */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className="text-xs text-dark/60 mr-1">Quick amounts:</span>
+              {[0, 10000, 25000, 50000, 100000, 250000].map(amount => (
+                <button
+                  key={amount}
+                  onClick={() => handleChange('currentSavings', amount)}
+                  className={`text-xs px-2 py-1 rounded transition-colors ${
+                    assumptions.currentSavings === amount 
+                      ? 'bg-green-200 text-green-800' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  ${amount === 0 ? '0' : `${amount / 1000}K`}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="text-sm text-green-700">
+            {assumptions.currentSavings > 0 ? (
+              <div className="bg-white rounded p-3">
+                <div className="font-medium">Great start! 🎉</div>
+                <div className="text-xs text-green-600 mt-1">
+                  Your existing savings will grow to approximately <strong>${(assumptions.currentSavings * Math.pow(assumptions.expectedReturn, retirementYears)).toLocaleString()}</strong> in {retirementYears} years 
+                  (assuming {(assumptions.expectedReturn * 100).toFixed(1)}% returns), reducing how much you need to save monthly.
+                </div>
+              </div>
+            ) : (
+              <div className="text-green-600 text-xs">
+                💡 <strong>Tip:</strong> Even if you haven't started saving yet, it's never too late! 
+                Any amount you already have will significantly reduce your monthly savings requirements.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <h3 className="text-lg font-semibold text-dark">Financial Assumptions</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Withdrawal Rate */}
         <div>
           <label className="block text-sm font-medium text-dark/70 mb-2">
@@ -93,31 +158,6 @@ export function AssumptionsInput({ assumptions, onChange, className = "" }: Assu
           </div>
           <div className="text-xs text-dark/50 mt-1">
             Expected annual return on investments (S&P 500 avg ~7%)
-          </div>
-        </div>
-
-        {/* Current Savings */}
-        <div>
-          <label className="block text-sm font-medium text-dark/70 mb-2">
-            Current Savings
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-dark/40 text-sm">$</span>
-            </div>
-            <input
-              type="number"
-              value={assumptions.currentSavings}
-              onChange={(e) => handleChange('currentSavings', parseFloat(e.target.value) || 0)}
-              className="input-field pl-8"
-              step="1000"
-              min="0"
-              max="10000000"
-              placeholder="0"
-            />
-          </div>
-          <div className="text-xs text-dark/50 mt-1">
-            Amount already saved for retirement
           </div>
         </div>
       </div>

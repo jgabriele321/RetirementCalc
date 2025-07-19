@@ -128,6 +128,7 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
         <AssumptionsInput
           assumptions={assumptions}
           onChange={handleAssumptionsChange}
+          retirementYears={retirementYears}
         />
       </div>
 
@@ -152,6 +153,12 @@ export function InputCard({ onDataChange, className = "" }: InputCardProps) {
               <span>Monthly spending:</span>
               <span className="font-medium">
                 ${Object.values(monthlySpending).reduce((a, b) => a + b, 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Current savings:</span>
+              <span className="font-medium">
+                ${assumptions.currentSavings.toLocaleString()}
               </span>
             </div>
           </div>
